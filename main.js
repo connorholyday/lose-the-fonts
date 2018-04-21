@@ -9,37 +9,38 @@ const stashName = 'font-disabler-stash';
 const stashDirectory = fontsDirectory + stashName;
 
 let tray = null;
-let stash_active = false;
+let fonts_enabled = true;
 
 function start() {
 
     app.dock.hide();
 
-    const icon = {
-        active: path.join(__dirname, 'iconTemplate.png'),
-        inactive: path.join(__dirname, 'iconInactiveTemplate.png'),
-    };
-    tray = new Tray(icon.active);
+    tray = new Tray(getIcon(true));
 
     tray.on('click', event => {
-        stash_active = !stash_active;
-
-        if (stash_active) {
-            tray.setImage(icon.inactive);
-        } else {
-            tray.setImage(icon.active);
-        }
-
-        stashFonts(stash_active);
+        toggleFonts();
     });
 
     setupContextMenu();
 }
 
+function getIcon(is_active) {
+    const icon = {
+        active: path.join(__dirname, 'iconTemplate.png'),
+        inactive: path.join(__dirname, 'iconInactiveTemplate.png'),
+    };
+
+    return is_active ? icon.active : icon.inactive;
+}
+
+function setIcon(is_active) {
+    tray.setImage(getIcon(is_active));
+}
+
 function setupContextMenu() {
     const contextMenu = Menu.buildFromTemplate([
-        { label: 'All fonts', type: 'radio', click: () => stashFonts(false) },
-        { label: 'System fonts', type: 'radio', click: () => stashFonts(true) },
+        { label: 'All fonts', type: 'radio', click: () => toggleFonts(true) },
+        { label: 'System fonts', type: 'radio', click: () => toggleFonts(false) },
         { label: 'Quit', role: 'quit' },
     ]);
 
@@ -48,8 +49,12 @@ function setupContextMenu() {
     });
 }
 
-async function stashFonts(stash) {
-    if (stash) {
+async function toggleFonts(are_enabled = !fonts_enabled) {
+    fonts_enabled = are_enabled;
+
+    setIcon(are_enabled);
+
+    if (!are_enabled) {
         glob.readdirStream(fontsDirectory + '*')
             .on('data', function (file) {
                 if (!file.isFile()) return;
