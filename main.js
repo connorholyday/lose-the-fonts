@@ -9,19 +9,28 @@ const stashName = 'font-disabler-stash';
 const stashDirectory = fontsDirectory + stashName;
 
 let tray = null;
-let stashed = false;
+let stash_active = false;
 
 function start() {
 
     app.dock.hide();
 
-    const iconPath = path.join(__dirname, 'icon.png');
-    tray = new Tray(iconPath);
+    const icon = {
+        active: path.join(__dirname, 'iconTemplate.png'),
+        inactive: path.join(__dirname, 'iconInactiveTemplate.png'),
+    };
+    tray = new Tray(icon.active);
 
     tray.on('click', event => {
-        stashed = !stashed;
+        stash_active = !stash_active;
 
-        stashFonts(stashed);
+        if (stash_active) {
+            tray.setImage(icon.inactive);
+        } else {
+            tray.setImage(icon.active);
+        }
+
+        stashFonts(stash_active);
     });
 
     setupContextMenu();
@@ -49,21 +58,25 @@ async function stashFonts(stash) {
             })
             .on('error', console.error);
     } else {
-        const fileGlob = await glob.readdirPromise(stashDirectory + '/*');
-        Promise.all(fileGlob.map(file => {
-            return new Promise((resolve, reject) => {
-                const fileName = file.substr(file.lastIndexOf('/') + 1);
+        try {
+            const fileGlob = await glob.readdirPromise(stashDirectory + '/*');
+            Promise.all(fileGlob.map(file => {
+                return new Promise((resolve, reject) => {
+                    const fileName = file.substr(file.lastIndexOf('/') + 1);
 
-                fs.move(file, path.join(__dirname, fontsDirectory + fileName), err => {
-                    if (err) reject();
-                    resolve();
+                    fs.move(file, path.join(__dirname, fontsDirectory + fileName), err => {
+                        if (err) reject();
+                        resolve();
+                    });
                 });
+            }))
+            .catch(err => console.err(err))
+            .then(() => {
+                fs.rmdirSync(stashDirectory);
             });
-        }))
-        .catch(err => console.err(err))
-        .then(() => {
-            fs.rmdirSync(stashDirectory);
-        });
+        } catch (e) {
+            console.error(e);
+        }
     }
 }
 
