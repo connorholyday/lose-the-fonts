@@ -12,16 +12,20 @@ let tray = null;
 let fonts_enabled = true;
 
 function start() {
-
     app.dock.hide();
+    setupTray();
+}
 
+function setupTray() {
     tray = new Tray(getIcon(true));
 
     tray.on('click', event => {
         toggleFonts();
     });
 
-    setupContextMenu();
+    tray.on('right-click', _ => {
+        tray.popUpContextMenu(getContextMenu(fonts_enabled));
+    });
 }
 
 function getIcon(is_active) {
@@ -37,21 +41,18 @@ function setIcon(is_active) {
     tray.setImage(getIcon(is_active));
 }
 
-function setupContextMenu() {
+function getContextMenu(all_fonts = true) {
     const contextMenu = Menu.buildFromTemplate([
-        { label: 'All fonts', type: 'radio', click: () => toggleFonts(true) },
-        { label: 'System fonts', type: 'radio', click: () => toggleFonts(false) },
+        { label: 'All fonts', type: 'radio', click: () => toggleFonts(true), checked: all_fonts},
+        { label: 'System fonts', type: 'radio', click: () => toggleFonts(false), checked: !all_fonts },
         { label: 'Quit', role: 'quit' },
     ]);
 
-    tray.on('right-click', _ => {
-        tray.popUpContextMenu(contextMenu);
-    });
+    return contextMenu;
 }
 
 function toggleFonts(are_enabled = !fonts_enabled) {
     fonts_enabled = are_enabled;
-
     setIcon(are_enabled);
 
     if (!are_enabled) {
