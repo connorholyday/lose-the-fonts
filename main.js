@@ -38,6 +38,8 @@ function start() {
 
 function setupContextMenu() {
     const contextMenu = Menu.buildFromTemplate([
+        { label: 'All fonts', type: 'radio', click: () => stashFonts(false) },
+        { label: 'System fonts', type: 'radio', click: () => stashFonts(true) },
         { label: 'Quit', role: 'quit' },
     ]);
 
