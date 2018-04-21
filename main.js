@@ -49,41 +49,49 @@ function setupContextMenu() {
     });
 }
 
-async function toggleFonts(are_enabled = !fonts_enabled) {
+function toggleFonts(are_enabled = !fonts_enabled) {
     fonts_enabled = are_enabled;
 
     setIcon(are_enabled);
 
     if (!are_enabled) {
-        glob.readdirStream(fontsDirectory + '*')
-            .on('data', function (file) {
-                if (!file.isFile()) return;
-
-                mv(file.path, stashDirectory + '/' + file.basename, { mkdirp: true }, (err) => {
-                  if (err) throw err;
-                });
-            })
-            .on('error', console.error);
+        stashFonts();
     } else {
-        try {
-            const fileGlob = await glob.readdirPromise(stashDirectory + '/*');
-            Promise.all(fileGlob.map(file => {
-                return new Promise((resolve, reject) => {
-                    const fileName = file.substr(file.lastIndexOf('/') + 1);
+        unStashFonts();
+    }
+}
 
-                    fs.move(file, path.join(__dirname, fontsDirectory + fileName), err => {
-                        if (err) reject();
-                        resolve();
-                    });
+function stashFonts() {
+    glob.readdirStream(fontsDirectory + '*')
+        .on('data', function (file) {
+            if (!file.isFile()) return;
+
+            mv(file.path, stashDirectory + '/' + file.basename, { mkdirp: true }, (err) => {
+                if (err) throw err;
+            });
+        })
+        .on('error', console.error);
+}
+
+async function unStashFonts() {
+    try {
+        const fileGlob = await glob.readdirPromise(stashDirectory + '/*');
+        Promise.all(fileGlob.map(file => {
+            return new Promise((resolve, reject) => {
+                const fileName = file.substr(file.lastIndexOf('/') + 1);
+
+                fs.move(file, path.join(__dirname, fontsDirectory + fileName), err => {
+                    if (err) reject();
+                    resolve();
                 });
-            }))
+            });
+        }))
             .catch(err => console.err(err))
             .then(() => {
                 fs.rmdirSync(stashDirectory);
             });
-        } catch (e) {
-            console.error(e);
-        }
+    } catch (e) {
+        console.error(e);
     }
 }
 
