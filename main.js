@@ -1,6 +1,6 @@
 const { app, Menu, Tray } = require('electron');
 const path = require('path');
-const fs = require('fs');
+const fs = require('fs-extra');
 const glob = require('glob-fs')();
 const mv = require('mv');
 
@@ -37,7 +37,7 @@ function setupContextMenu() {
     });
 }
 
-function stashFonts(stash) {
+async function stashFonts(stash) {
     if (stash) {
         glob.readdirStream(fontsDirectory + '*')
             .on('data', function (file) {
@@ -47,26 +47,23 @@ function stashFonts(stash) {
                   if (err) throw err;
                 });
             })
-            .on('error', console.error)
-            .on('end', function () {
-                console.log('end');
-            });
+            .on('error', console.error);
     } else {
-        glob.readdirStream(stashDirectory + '/*')
-            .on('data', function (file) {
-                if (!file.isFile()) return;
+        const fileGlob = await glob.readdirPromise(stashDirectory + '/*');
+        Promise.all(fileGlob.map(file => {
+            return new Promise((resolve, reject) => {
+                const fileName = file.substr(file.lastIndexOf('/') + 1);
 
-                mv(file.path, fontsDirectory + file.basename, (err) => {
-                  if (err) throw err;
-                  console.log('renamed complete');
+                fs.move(file, path.join(__dirname, fontsDirectory + fileName), err => {
+                    if (err) reject();
+                    resolve();
                 });
-            })
-            .on('error', console.error)
-            .on('end', function () {
-                console.log('remove the dir');
-                //fs.rmdirSync(stashDirectory);
-                console.log('end');
             });
+        }))
+        .catch(err => console.err(err))
+        .then(() => {
+            fs.rmdirSync(stashDirectory);
+        });
     }
 }
 
