@@ -5,9 +5,13 @@
   "main": "main.js",
   "license": "MIT",
   "scripts": {
-      "start": "electron ."
+    "start": "electron ."
   },
   "devDependencies": {
     "electron": "^1.8.4"
+  },
+  "dependencies": {
+    "glob-fs": "^0.1.7",
+    "mv": "^2.1.1"
   }
 }
