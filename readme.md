@@ -1,3 +1,19 @@
+# TODOS
+
+- [] Figure out publishing
+- [] Figure out auto-updates
+- [] Take screenshots
+- [] Take videos
+- [] Homebrew installation instructions
+- [] Make landing page
+- [] Add analytics
+- [] Update readme
+- [] Tag and release
+- [] Producthunt
+- [] Reddit
+- [] Alfred script?
+- [] Blog post?
+
 # Lose The Fonts
 
 Toggles fonts on your local machine.
