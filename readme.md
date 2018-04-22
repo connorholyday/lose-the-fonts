@@ -16,6 +16,16 @@ On OSX your fonts are located in the `~/Library/Fonts/` directory.
 This app works by moving these fonts to `~/Library/LoseTheFonts/`
 when activated, and moving them back when deactivated.
 
+## Build instructions
+
+First install Electron and Electron Packager.
+
+To run the app in development mode:
+`npm run start`
+
+To build the app:
+`electron-packager . --overwrite --icon "./app-icon.icns"`
+
 ## License
 
 MIT © [Connor Holyday](https://holyday.me)
