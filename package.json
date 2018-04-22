@@ -1,11 +1,46 @@
 {
-  "name": "Lose The Fonts",
+  "name": "lose-the-fonts",
   "version": "0.1.0",
   "description": "Toggle your custom fonts",
+  "repository" : {
+      "type" : "git",
+      "url": "https://github.com/connorholyday/lose-the-fonts.git"
+  },
   "main": "main.js",
   "license": "MIT",
+  "author": "Connor Holyday <connorholyday@gmail.com>",
   "scripts": {
-    "start": "electron ."
+    "start": "electron .",
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder",
+    "postinstall": "electron-builder install-app-deps"
+  },
+  "build": {
+    "appId": "org.connorholyday.lose-the-fonts",
+    "productName": "Lose The Fonts",
+    "files": [
+      "out"
+    ],
+    "mac": {
+      "category": "public.app-category.developer-tools"
+    },
+    "nsis": {
+      "createDesktopShortcut": "always"
+    },
+    "dmg": {
+      "contents": [
+        {
+          "x": 110,
+          "y": 150
+        },
+        {
+          "x": 240,
+          "y": 150,
+          "type": "link",
+          "path": "/Applications"
+        }
+      ]
+    }
   },
   "devDependencies": {
     "electron": "^1.8.4"
