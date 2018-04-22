@@ -1,7 +1,6 @@
 const { app, Menu, Tray } = require('electron');
 const os = require('os');
 const path = require('path');
-const fs = require('fs-extra');
 const glob = require('glob-fs')();
 const mv = require('mv');
 
@@ -19,6 +18,7 @@ function start() {
 
 function setupTray() {
     tray = new Tray(getIcon(true));
+    tray.setHighlightMode('never');
 
     tray.on('click', event => {
         toggleFonts();
@@ -75,23 +75,16 @@ function stashFonts() {
         .on('error', console.error);
 }
 
-async function unStashFonts() {
-    try {
-        const fileGlob = await glob.readdirPromise(stashDirectory + '*');
-        Promise.all(fileGlob.map(file => {
-            return new Promise((resolve, reject) => {
-                const fileName = file.substr(file.lastIndexOf('/') + 1);
+function unStashFonts() {
+    glob.readdirStream(stashDirectory + '*')
+        .on('data', function(file) {
+            if (!file.isFile()) return;
 
-                fs.move(file, fontsDirectory + fileName, err => {
-                    if (err) reject();
-                    resolve();
-                });
+            mv(file.path, fontsDirectory + file.basename, (err) => {
+                if (err) throw err;
             });
-        }))
-        .catch(err => console.err(err));
-    } catch (e) {
-        console.error(e);
-    }
+        })
+        .on('error', console.error);
 }
 
 app.on('ready', start);
