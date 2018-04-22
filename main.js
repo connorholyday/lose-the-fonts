@@ -1,17 +1,18 @@
 const { app, Menu, Tray } = require('electron');
+const os = require('os');
 const path = require('path');
 const fs = require('fs-extra');
 const glob = require('glob-fs')();
 const mv = require('mv');
 
-const fontsDirectory = 'test/';
-const stashName = 'font-disabler-stash';
-const stashDirectory = fontsDirectory + stashName;
+const fontsDirectory = 'Library/Fonts/';
+const stashDirectory = 'Library/FontDisabler/';
 
 let tray = null;
 let fonts_enabled = true;
 
 function start() {
+    process.chdir(os.homedir());
     app.dock.hide();
     setupTray();
 }
@@ -67,7 +68,7 @@ function stashFonts() {
         .on('data', function (file) {
             if (!file.isFile()) return;
 
-            mv(file.path, stashDirectory + '/' + file.basename, { mkdirp: true }, (err) => {
+            mv(file.path, stashDirectory + file.basename, { mkdirp: true }, (err) => {
                 if (err) throw err;
             });
         })
@@ -76,21 +77,18 @@ function stashFonts() {
 
 async function unStashFonts() {
     try {
-        const fileGlob = await glob.readdirPromise(stashDirectory + '/*');
+        const fileGlob = await glob.readdirPromise(stashDirectory + '*');
         Promise.all(fileGlob.map(file => {
             return new Promise((resolve, reject) => {
                 const fileName = file.substr(file.lastIndexOf('/') + 1);
 
-                fs.move(file, path.join(__dirname, fontsDirectory + fileName), err => {
+                fs.move(file, fontsDirectory + fileName, err => {
                     if (err) reject();
                     resolve();
                 });
             });
         }))
-            .catch(err => console.err(err))
-            .then(() => {
-                fs.rmdirSync(stashDirectory);
-            });
+        .catch(err => console.err(err));
     } catch (e) {
         console.error(e);
     }
