@@ -5,7 +5,7 @@ const glob = require('glob-fs')();
 const mv = require('mv');
 
 const fontsDirectory = 'Library/Fonts/';
-const stashDirectory = 'Library/FontDisabler/';
+const stashDirectory = 'Library/LoseTheFonts/';
 
 let tray = null;
 let fonts_enabled = true;
