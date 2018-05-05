@@ -28,12 +28,12 @@ To build the app:
 
 # TODOS
 
-- [] Take screenshots
-- [] Take videos
-- [] Homebrew installation instructions
-- [] Make landing page
-- [] Add analytics
-- [] Alfred script?
+- [ ] Take screenshots
+- [ ] Take videos
+- [ ] Homebrew installation instructions
+- [ ] Make landing page
+- [ ] Add analytics
+- [ ] Alfred script?
 
 ## License
 
