@@ -1,7 +1,10 @@
 # Lose The Fonts
 
 Toggles fonts on your local machine.
+
 So that you can test that your font services are working.
+
+Download the latest release [here](https://github.com/connorholyday/lose-the-fonts/releases)
 
 ## By why
 
